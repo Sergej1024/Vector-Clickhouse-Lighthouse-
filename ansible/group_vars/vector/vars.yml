@@ -1,0 +1,27 @@
+vector_version: 0.22.0
+vector_dirs: "vector"
+arch: x86_64
+
+vector_config:
+
+  sources:
+    my_logs:
+      type: vector
+      acknowledgements: null
+      address: 0.0.0.0:9000
+      version: "2"
+      #format: shuffle
+      #lines:
+      #  - Line 1
+
+  sinks:
+    to_clickhouse:
+      type: clickhouse
+      inputs:
+        - my_logs
+      database: mydatabase
+      endpoint: http://{{ clickhouse_01_ext_ip }}:8123
+      table: mytable
+      compression: gzip
+      healthcheck: false
+      skip_unknown_fields: true
