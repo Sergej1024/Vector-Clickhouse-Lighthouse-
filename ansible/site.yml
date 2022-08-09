@@ -83,7 +83,7 @@
         group: "{{ ansible_user_gid }}"
         validate: vector validate --no-environment --config-yaml %s
 
-    - name: Vector | change systemd unit
+    - name: Vector change systemd unit
       become: true
       ansible.builtin.template:
         src: vector.service.j2
@@ -93,13 +93,8 @@
         group: "{{ ansible_user_gid }}"
         backup: true
       notify: Start Vector service
-# - name: Testing vector
-#   hosts: vector
-#   remote_user: centos
-#   become: true
-#   tasks:
-#     - name: Send massege in vector
-#       ansible.builtin.shell: "echo 'Hello world!' | vector --config {{ vector_config_dir }}/vector.yml"
+    # - name: Send massege in vector
+    #   ansible.builtin.shell: "echo 'Hello world!' | vector --config {{ vector_config_dir }}/vector.yml"
 
 - name: Install lighthouse
   hosts: lighthouse
@@ -111,24 +106,24 @@
         name: nginx
         state: restarted
   pre_tasks:
-    - name: Lighthouse | Install git
+    - name: Install git
       become: true
       ansible.builtin.yum:
         name: git
         state: present
-    - name: Lighthouse | Install EPEL
+    - name: Install EPEL
       become: true
       ansible.builtin.yum:
         name:
           - epel-release
         state: present
         update_cache: true
-    - name: Lighhouse | Install nginx
+    - name: Install nginx
       become: true
       ansible.builtin.yum:
         name: nginx
         state: present
-    - name: Lighthouse | Apply nginx config
+    - name: Apply nginx config
       become: true
       ansible.builtin.template:
         src: nginx.conf.j2
@@ -136,16 +131,9 @@
         mode: 0644
       notify: Nginx reload
   tasks:
-    - name: Lighthouse | Clone repository
+    - name: Clone repository
       become: true
       ansible.builtin.git:
         repo: "{{ lighthouse_url }}"
         dest: "{{ lighthouse_dest }}"
         version: master
-    # - name: Lighthouse | Apply config
-    #   become: true
-    #   ansible.builtin.template:
-    #     src: lighthouse_nginx.conf.j2
-    #     dest: /etc/nginx/conf.d/lighthouse.conf
-    #     mode: 0644
-    #   notify: Nginx reload

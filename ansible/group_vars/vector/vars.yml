@@ -9,14 +9,17 @@ vector_config:
     demo_logs:
       type: demo_logs
       format: syslog
+    in:
+      type: stdin
   sinks:
     to_clickhouse:
       type: clickhouse
       inputs:
         - demo_logs
+        - in
       database: logs
       endpoint: http://{{ clickhouse_01_ext_ip }}:8123
-      table: logs.alerts
+      table: alerts
       compression: gzip
       healthcheck: true
-      skip_unknown_fields: true
+      skip_unknown_fields: true 

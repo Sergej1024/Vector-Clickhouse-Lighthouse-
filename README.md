@@ -1,4 +1,4 @@
-# Домашнее задание к занятию "08.02 Работа с Playbook"
+# Домашнее задание к занятию "08.03 Использование Yandex Cloud"
 
 Данный плейбук предназначен для установки `Clickhouse`, `Vector` на хосты, указанные в `inventory` файле.
 
@@ -75,14 +75,11 @@ handlers:
 ```
 | Имя pretask | Описание |
 |--------------|---------|
-| `Lighthouse \| Install git` | Устанавливаем `git` |
-| `Lighhouse \| Install nginx` | Устанавливаем `Nginx` |
-| `Lighthouse \| Apply nginx config` | Применяем конфиг `Nginx`. |
+| `Install git` | Устанавливаем `git` |
+| `Install nginx` | Устанавливаем `Nginx` |
+| `Apply nginx config` | Применяем конфиг `Nginx`. После этого перезапускаем `nginx` для применения изменений|
+| `Clone repository` | Клонируем репозиторий `lighthouse` из ветки `master` |
 
-| Имя таска | Описание |
-|--------------|---------|
-| `Lighthouse \| Clone repository` | Клонируем репозиторий `lighthouse` из ветки `master` |
-| `Lighthouse \| Apply config` | Применяем конфиг `Nginx` для `lighthouse`. После этого перезапускаем `nginx` для применения изменений |
 
 
 ## Template
