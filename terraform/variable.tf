@@ -1,14 +1,14 @@
 variable "YC_TOKEN" {
-  default = "AQAAAAACfG8AAATuwfHJTfeY0kfqjb2D5fkWJfM"
+  default = ""
 }
 
 variable "YC_CLOUD_ID" {
-  default = "b1g3839rsq4g6pkhp2e7"
+  default = ""
 }
 
 
 variable "YC_FOLDER_ID" {
-  default = "b1gaa80uc55olksp2vtt"
+  default = ""
 }
 
 variable "YC_ZONE" {
