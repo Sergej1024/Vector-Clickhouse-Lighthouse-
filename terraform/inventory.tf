@@ -14,7 +14,7 @@ resource "local_file" "inventory" {
     lighthouse:
       hosts:
         lighthouse-01:
-          ansible_host: ${yandex_compute_instance.node02.network_interface.0.nat_ip_address}
+          ansible_host: ${yandex_compute_instance.node03.network_interface.0.nat_ip_address}
   DOC
   filename = "../ansible/inventory/prod.yml"
 }  

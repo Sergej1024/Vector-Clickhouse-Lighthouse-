@@ -28,18 +28,38 @@
           - clickhouse-client-{{ clickhouse_version }}.rpm
           - clickhouse-server-{{ clickhouse_version }}.rpm
       notify: Start clickhouse service
+    - name: Clickhouse | Config change (allow from everywhere)
+      become: true
+      ansible.builtin.lineinfile: dest=/etc/clickhouse-server/config.xml
+                  regexp='^(.*)<listen_host>0.0.0.0</listen_host>(.*)$'
+                  line='    <listen_host>0.0.0.0</listen_host>'
+                  state=present
+      notify: Start clickhouse service
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
+    - name: Clickhouse | Starting clickhouse
+      ansible.builtin.pause:
+        seconds: 5
     - name: Create database
-      ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
+      ansible.builtin.command: "clickhouse-client -q 'create database logs;' -h 127.0.0.1"
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc !=82
       changed_when: create_db.rc == 0
+    - name: Create table logs.alerts
+      ansible.builtin.command: "clickhouse-client -h 127.0.0.1 -q 'create table logs.alerts (message String) ENGINE = TinyLog();' "
+      register: create_table
+      failed_when: create_table.rc !=0 and create_table.rc !=57
+      changed_when: create_table.rc ==0
 
 - name: Install Vector
   hosts: vector
   remote_user: centos
-
+  handlers:
+    - name: Start Vector service
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: restarted
   tasks:
     - name: Download Vector distrib
       ansible.builtin.get_url:
@@ -54,20 +74,32 @@
           - vector-{{ vector_version }}-1.{{ arch }}.rpm
 
     - name: Copy Vector config
+      become: true
       ansible.builtin.template:
         src: vector.yml.j2
-        dest: vector.yml
+        dest: "{{ vector_config_dir }}/vector.yml"
         mode: "0644"
         owner: "{{ ansible_user_id }}"
         group: "{{ ansible_user_gid }}"
-        # validate: vector validate --no-environment --config-yaml %s
+        validate: vector validate --no-environment --config-yaml %s
 
-    - name: Start Vector service
+    - name: Vector | change systemd unit
       become: true
-      ansible.builtin.service:
-        name: vector
-        state: restarted
-        daemon_reload: true
+      ansible.builtin.template:
+        src: vector.service.j2
+        dest: /usr/lib/systemd/system/vector.service
+        mode: "0644"
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        backup: true
+      notify: Start Vector service
+# - name: Testing vector
+#   hosts: vector
+#   remote_user: centos
+#   become: true
+#   tasks:
+#     - name: Send massege in vector
+#       ansible.builtin.shell: "echo 'Hello world!' | vector --config {{ vector_config_dir }}/vector.yml"
 
 - name: Install lighthouse
   hosts: lighthouse
@@ -102,6 +134,7 @@
         src: nginx.conf.j2
         dest: /etc/nginx/nginx.conf
         mode: 0644
+      notify: Nginx reload
   tasks:
     - name: Lighthouse | Clone repository
       become: true

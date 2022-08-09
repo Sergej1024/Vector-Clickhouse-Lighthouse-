@@ -1,27 +1,22 @@
 vector_version: 0.22.0
 vector_dirs: "vector"
 arch: x86_64
+vector_config_dir: "/etc/vector"
 
 vector_config:
 
   sources:
-    my_logs:
-      type: vector
-      acknowledgements: null
-      address: 0.0.0.0:9000
-      version: "2"
-      #format: shuffle
-      #lines:
-      #  - Line 1
-
+    demo_logs:
+      type: demo_logs
+      format: syslog
   sinks:
     to_clickhouse:
       type: clickhouse
       inputs:
-        - my_logs
-      database: mydatabase
+        - demo_logs
+      database: logs
       endpoint: http://{{ clickhouse_01_ext_ip }}:8123
-      table: mytable
+      table: logs.alerts
       compression: gzip
-      healthcheck: false
+      healthcheck: true
       skip_unknown_fields: true
